@@ -88,7 +88,6 @@
             this.wmpMain.Size = new System.Drawing.Size(345, 263);
             this.wmpMain.TabIndex = 1;
             this.wmpMain.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(this.wmpMain_PlayStateChange);
-            this.wmpMain.PositionChange += new AxWMPLib._WMPOCXEvents_PositionChangeEventHandler(this.wmpMain_PositionChange);
             this.wmpMain.MediaChange += new AxWMPLib._WMPOCXEvents_MediaChangeEventHandler(this.wmpMain_MediaChange);
             // 
             // label1

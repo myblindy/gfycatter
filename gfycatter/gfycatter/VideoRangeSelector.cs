@@ -56,7 +56,10 @@ namespace gfycatter
 
             if (Dragging >= 0)
             {
-                var frameval = (float)e.X / Width * (frameMax - FrameMin);
+                var pos = (float)e.X / Width;
+                if (pos < 0) pos = 0; else if (pos > 1) pos = 1;
+
+                var frameval = pos * (frameMax - FrameMin);
                 if (Dragging == 0)
                 {
                     if (frameval > RangeValue2)
@@ -157,7 +160,7 @@ namespace gfycatter
             set
             {
                 currentValue = value;
-                FireRangeUpdated();
+                Invalidate();
             }
         }
 
