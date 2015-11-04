@@ -29,21 +29,19 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openVideoFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ofdVideoFile = new System.Windows.Forms.OpenFileDialog();
-            this.wmpMain = new AxWMPLib.AxWindowsMediaPlayer();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.lblLength = new System.Windows.Forms.Label();
             this.txtFrom = new System.Windows.Forms.TextBox();
             this.txtTo = new System.Windows.Forms.TextBox();
-            this.selVideoRange = new gfycatter.VideoRangeSelector();
             this.tmrUI = new System.Windows.Forms.Timer(this.components);
+            this.selVideoRange = new gfycatter.VideoRangeSelector();
+            this.pnlVideoPlayer = new System.Windows.Forms.Panel();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.wmpMain)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -75,20 +73,6 @@
             // ofdVideoFile
             // 
             this.ofdVideoFile.FileName = "Video Files (*.avi;*.wmv;*.flv)|*.avi;*.wmv;*.flv";
-            // 
-            // wmpMain
-            // 
-            this.wmpMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.wmpMain.Enabled = true;
-            this.wmpMain.Location = new System.Drawing.Point(12, 27);
-            this.wmpMain.Name = "wmpMain";
-            this.wmpMain.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("wmpMain.OcxState")));
-            this.wmpMain.Size = new System.Drawing.Size(345, 263);
-            this.wmpMain.TabIndex = 1;
-            this.wmpMain.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(this.wmpMain_PlayStateChange);
-            this.wmpMain.MediaChange += new AxWMPLib._WMPOCXEvents_MediaChangeEventHandler(this.wmpMain_MediaChange);
             // 
             // label1
             // 
@@ -136,6 +120,11 @@
             this.txtTo.Size = new System.Drawing.Size(77, 20);
             this.txtTo.TabIndex = 4;
             // 
+            // tmrUI
+            // 
+            this.tmrUI.Enabled = true;
+            this.tmrUI.Tick += new System.EventHandler(this.tmrUI_Tick);
+            // 
             // selVideoRange
             // 
             this.selVideoRange.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -143,39 +132,42 @@
             this.selVideoRange.CurrentValue = 0;
             this.selVideoRange.FrameMax = 100;
             this.selVideoRange.FrameMin = 0;
-            this.selVideoRange.Location = new System.Drawing.Point(12, 296);
+            this.selVideoRange.Location = new System.Drawing.Point(15, 296);
             this.selVideoRange.Name = "selVideoRange";
             this.selVideoRange.RangeValue1 = 0;
             this.selVideoRange.RangeValue2 = 100;
-            this.selVideoRange.Size = new System.Drawing.Size(345, 23);
-            this.selVideoRange.TabIndex = 2;
+            this.selVideoRange.Size = new System.Drawing.Size(342, 23);
+            this.selVideoRange.TabIndex = 5;
             this.selVideoRange.RangeUpdated += new System.EventHandler(this.selVideoRange_RangeUpdated);
             // 
-            // tmrUI
+            // pnlVideoPlayer
             // 
-            this.tmrUI.Enabled = true;
-            this.tmrUI.Tick += new System.EventHandler(this.tmrUI_Tick);
+            this.pnlVideoPlayer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlVideoPlayer.Location = new System.Drawing.Point(12, 27);
+            this.pnlVideoPlayer.Name = "pnlVideoPlayer";
+            this.pnlVideoPlayer.Size = new System.Drawing.Size(345, 263);
+            this.pnlVideoPlayer.TabIndex = 7;
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(369, 357);
-            this.Controls.Add(this.txtTo);
-            this.Controls.Add(this.txtFrom);
-            this.Controls.Add(this.lblLength);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.pnlVideoPlayer);
             this.Controls.Add(this.selVideoRange);
-            this.Controls.Add(this.wmpMain);
             this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.lblLength);
+            this.Controls.Add(this.txtFrom);
+            this.Controls.Add(this.txtTo);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FrmMain";
             this.Text = "Gfycatter";
-            this.Load += new System.EventHandler(this.FrmMain_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.wmpMain)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -187,14 +179,14 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openVideoFileToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog ofdVideoFile;
-        private AxWMPLib.AxWindowsMediaPlayer wmpMain;
-        private VideoRangeSelector selVideoRange;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblLength;
         private System.Windows.Forms.TextBox txtFrom;
         private System.Windows.Forms.TextBox txtTo;
         private System.Windows.Forms.Timer tmrUI;
+        private VideoRangeSelector selVideoRange;
+        private System.Windows.Forms.Panel pnlVideoPlayer;
     }
 }
 

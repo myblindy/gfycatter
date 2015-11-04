@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,14 +16,33 @@ namespace gfycatter
 {
     public partial class FrmMain : Form
     {
+        Vlc.DotNet.Forms.VlcControl vlcVideoPlayer;
+
         string VideoFilePath;
         TimeSpan VideoDuration;
         Size VideoSize;
         bool VideoPlaying;
 
+        double? RequestRepositiong;
+
         public FrmMain()
         {
             InitializeComponent();
+
+            // build the VLC control
+            vlcVideoPlayer = new Vlc.DotNet.Forms.VlcControl();
+            vlcVideoPlayer.BeginInit();
+            vlcVideoPlayer.PositionChanged += VlcVideoPlayer_PositionChanged;
+            vlcVideoPlayer.VlcLibDirectory = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "vlc"));
+            vlcVideoPlayer.Dock = DockStyle.Fill;
+            vlcVideoPlayer.EndInit();
+            pnlVideoPlayer.Controls.Add(vlcVideoPlayer);
+        }
+
+        private void VlcVideoPlayer_PositionChanged(object sender, Vlc.DotNet.Core.VlcMediaPlayerPositionChangedEventArgs e)
+        {
+            var frameposition = e.NewPosition * (selVideoRange.FrameMax - selVideoRange.FrameMin);
+            selVideoRange.CurrentValue = (int)frameposition;
         }
 
         private void openVideoFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -42,16 +62,16 @@ namespace gfycatter
             selVideoRange.RangeValue2 = selVideoRange.FrameMax = (int)(mediafile.Metadata.VideoData.Fps * mediafile.Metadata.Duration.TotalSeconds);
             selVideoRange.RangeValue1 = 0;
             VideoFilePath = filepath;
+            VideoDuration = TimeSpan.FromSeconds(mediafile.Metadata.Duration.TotalSeconds);
 
             // and load it in the player
-            wmpMain.URL = filepath;
+            vlcVideoPlayer.Play(new FileInfo(filepath));
         }
 
-        private void FrmMain_Load(object sender, EventArgs e)
+        private void RepositionToFrame(int framepos, int framemin, int framemax)
         {
-            wmpMain.uiMode = "none";
-            wmpMain.windowlessVideo = true;
-            wmpMain.enableContextMenu = false;
+            vlcVideoPlayer.Position = (float)framepos / (framemax - framemin);
+            Debug.WriteLine("Repositioning requested to frame " + framepos + " in [" + framemin + ", " + framemax + "]");
         }
 
         bool DontReposition = false;
@@ -68,35 +88,21 @@ namespace gfycatter
 
                 // reforce the movie range
                 if (!DontReposition)
-                {
-                    var pos = wmpMain.Ctlcontrols.currentPosition = (double)selVideoRange.RangeValue1 / (selVideoRange.FrameMax - selVideoRange.FrameMin) * VideoDuration.TotalSeconds;
-                    Debug.WriteLine("Repositioning to " + pos);
-                }
+                    RepositionToFrame(selVideoRange.RangeValue1, selVideoRange.FrameMin, selVideoRange.FrameMax);
             }
-        }
-
-        private void wmpMain_MediaChange(object sender, AxWMPLib._WMPOCXEvents_MediaChangeEvent e)
-        {
-            var media = (WMPLib.IWMPMedia3)e.item;
-            VideoDuration = TimeSpan.FromSeconds(media.duration);
-            VideoSize = new Size(media.imageSourceWidth, media.imageSourceHeight);
-
-            DontReposition = true;
-            selVideoRange_RangeUpdated(null, EventArgs.Empty);
-            DontReposition = false;
-        }
-
-        private void wmpMain_PlayStateChange(object sender, AxWMPLib._WMPOCXEvents_PlayStateChangeEvent e)
-        {
-            VideoPlaying = e.newState == 3/*playing*/;
         }
 
         private void tmrUI_Tick(object sender, EventArgs e)
         {
             if (VideoPlaying)
             {
-                var frameposition = wmpMain.Ctlcontrols.currentPosition / VideoDuration.TotalSeconds * (selVideoRange.FrameMax - selVideoRange.FrameMin);
-                selVideoRange.CurrentValue = (int)frameposition;
+                // reposition requested?
+                if (RequestRepositiong.HasValue)
+                {
+                    //wmpMain.Ctlcontrols.currentPosition = RequestRepositiong.Value;
+                    RequestRepositiong = null;
+                }
+
             }
         }
     }
